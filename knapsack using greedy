@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <limits.h>
+#define MAX 10
+
+int n;                      // Number of cities
+int dist[MAX][MAX];         // Distance matrix
+int visited[MAX];           // Visited cities array
+int min_cost = INT_MAX;     // Store the minimum cost
+int best_path[MAX];         // Store the best path found
+int current_path[MAX];      // Temporary path
+
+void tsp(int city, int count, int cost) {
+    visited[city] = 1;
+    current_path[count - 1] = city;
+
+    // Base case: if all cities are visited and there is a return edge
+    if (count == n && dist[city][0] > 0) {
+        int total_cost = cost + dist[city][0];
+        if (total_cost < min_cost) {
+            min_cost = total_cost;
+            for (int i = 0; i < n; i++)
+                best_path[i] = current_path[i];
+            best_path[n] = 0; // return to starting city
+        }
+        visited[city] = 0;
+        return;
+    }
+
+    // Try next unvisited cities
+    for (int i = 0; i < n; i++) {
+        if (!visited[i] && dist[city][i] > 0) {
+            tsp(i, count + 1, cost + dist[city][i]);
+        }
+    }
+
+    visited[city] = 0; // Backtrack
+}
+
+int main() {
+    printf("Enter number of cities: ");
+    scanf("%d", &n);
+
+    printf("Enter the distance matrix:\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &dist[i][j]);
+        }
+    }
+
+    // Initialize visited array
+    for (int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    tsp(0, 1, 0); // Start from city 0
+
+    printf("\nOptimal Path: ");
+    for (int i = 0; i <= n; i++) {
+        printf("%d ", best_path[i]);
+        if (i < n) printf("-> ");
+    }
+
+    printf("\nMinimum Cost: %d\n", min_cost);
+
+    return 0;
+}
